@@ -1,0 +1,27 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+import { requestLogger } from '../../../packages/shared/libs/httpLogger';
+{{- if .HasMiddleware }}
+import { registerMiddleware } from './middleware';
+{{- end }}
+{{- if .HasRoutes }}
+import { registerRoutes } from './routes';
+{{- end }}
+
+dotenv.config({ path: process.env.ENV_FILE ?? 'config/env/.env.local' });
+
+export function createApp() {
+  const app = express();
+  app.use(cors());
+  app.use(express.json());
+  app.use(requestLogger());
+{{- if .HasMiddleware }}
+  registerMiddleware(app);
+{{- end }}
+{{- if .HasRoutes }}
+  registerRoutes(app);
+{{- end }}
+  return app;
+}

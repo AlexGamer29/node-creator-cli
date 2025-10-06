@@ -1,0 +1,20 @@
+import { createApp } from './app';
+import { logger } from '../../../packages/shared/libs/logger';
+
+type ShutdownHandler = () => void;
+
+const port = Number(process.env.PORT ?? 3000);
+const app = createApp();
+
+const server = app.listen(port, () => {
+  logger.info(`API service listening on port ${port}`);
+});
+
+const shutdownHandlers: ShutdownHandler[] = [
+  () => {
+    server.close(() => logger.info('HTTP server closed'));
+  }
+];
+
+process.on('SIGTERM', () => shutdownHandlers.forEach((handler) => handler()));
+process.on('SIGINT', () => shutdownHandlers.forEach((handler) => handler()));

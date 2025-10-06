@@ -1,0 +1,17 @@
+import { Express, Router } from 'express';
+{{- if .HasControllers }}
+import { exampleController } from '../controllers';
+{{- end }}
+
+export function registerRoutes(app: Express) {
+  const router = Router();
+
+  router.get('/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
+{{- if .HasControllers }}
+  router.get('/example', exampleController);
+{{- end }}
+
+  app.use('/v1', router);
+}

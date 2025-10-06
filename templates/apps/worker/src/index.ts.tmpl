@@ -1,0 +1,19 @@
+import dotenv from 'dotenv';
+import { Queue, Worker } from 'bullmq';
+
+import { logger } from '../../../packages/shared/libs/logger';
+import { redisClient } from '../../../packages/shared/cache/redis';
+
+dotenv.config({ path: process.env.ENV_FILE ?? 'config/env/.env.local' });
+
+const connection = redisClient();
+
+export function createQueue(name: string) {
+  return new Queue(name, { connection });
+}
+
+export function createWorker(name: string, handler: (payload: unknown) => Promise<void>) {
+  return new Worker(name, async (job) => handler(job.data), { connection });
+}
+
+logger.info('Worker scaffolding ready');

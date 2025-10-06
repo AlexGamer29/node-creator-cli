@@ -1,0 +1,11 @@
+{{- if .HasRepositories }}
+import { exampleRepository } from '../repositories';
+{{- end }}
+
+export async function exampleService() {
+{{- if .HasRepositories }}
+  return exampleRepository();
+{{- else }}
+  return { message: 'Example service layer' };
+{{- end }}
+}

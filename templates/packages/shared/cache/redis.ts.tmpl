@@ -1,0 +1,39 @@
+import dotenv from 'dotenv';
+import IORedis from 'ioredis';
+
+const namespace = '{{ .CacheNamespace }}';
+const group = '{{ .CacheGroup }}';
+const defaultTTL = {{ .CacheTTL }};
+
+dotenv.config({ path: process.env.ENV_FILE ?? 'config/env/.env.local' });
+
+let client: IORedis | null = null;
+
+export function redisClient() {
+  if (!client) {
+    const redisUrl = process.env.REDIS_URL ?? 'redis://localhost:6379';
+    client = new IORedis(redisUrl);
+  }
+  return client;
+}
+
+export function buildCacheKey(key: string) {
+  return `${namespace}:${group}:${key}`;
+}
+
+export async function setCache(key: string, value: unknown, ttlSeconds = defaultTTL) {
+  const serialized = JSON.stringify(value);
+  const redis = redisClient();
+  await redis.set(buildCacheKey(key), serialized, 'EX', ttlSeconds);
+}
+
+export async function getCache<T>(key: string): Promise<T | null> {
+  const redis = redisClient();
+  const raw = await redis.get(buildCacheKey(key));
+  return raw ? (JSON.parse(raw) as T) : null;
+}
+
+export async function invalidateCache(key: string) {
+  const redis = redisClient();
+  await redis.del(buildCacheKey(key));
+}

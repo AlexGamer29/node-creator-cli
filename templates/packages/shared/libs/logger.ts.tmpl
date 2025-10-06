@@ -1,0 +1,33 @@
+import fs from 'fs';
+import path from 'path';
+import { createLogger, format, transports } from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+
+type LogLevel = 'info' | 'error' | 'warn';
+
+const logDirectory = process.env.LOG_DIRECTORY ?? 'logs';
+
+if (!fs.existsSync(logDirectory)) {
+  fs.mkdirSync(logDirectory, { recursive: true });
+}
+
+function buildTransport(level: LogLevel) {
+  return new DailyRotateFile({
+    filename: path.join(logDirectory, `${level}-%DATE%.log`),
+    level,
+    datePattern: 'YYYY-MM-DD',
+    zippedArchive: false,
+    maxFiles: '14d'
+  });
+}
+
+export const logger = createLogger({
+  level: 'info',
+  format: format.combine(format.timestamp(), format.json()),
+  transports: [
+    buildTransport('info'),
+    buildTransport('error'),
+    buildTransport('warn'),
+    new transports.Console({ level: process.env.LOG_LEVEL ?? 'info' })
+  ]
+});

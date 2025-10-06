@@ -1,0 +1,19 @@
+# {{ .ProjectName }}
+
+Generated with `node-creator`.
+
+## Structure
+
+- `apps/api`: HTTP API service.
+- `apps/worker`: Background worker processing jobs.
+- `packages/shared`: Shared libraries (database, cache, auth, logging, helpers).
+- `config/env`: Environment variable presets for local, dev, staging, and production.
+
+## Getting Started
+
+```bash
+npm install
+npm run lint
+```
+
+Each workspace contains its own `package.json` with scripts tailored for the application.

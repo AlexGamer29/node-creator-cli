@@ -1,0 +1,15 @@
+import { Express, Request, Response, NextFunction } from 'express';
+import { logger } from '../../../packages/shared/libs/logger';
+
+function requestTimer(req: Request, res: Response, next: NextFunction) {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.info(`${req.method} ${req.originalUrl} -> ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+}
+
+export function registerMiddleware(app: Express) {
+  app.use(requestTimer);
+}

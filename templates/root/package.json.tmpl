@@ -1,0 +1,22 @@
+{
+  "name": "{{ .ProjectName }}",
+  "private": true,
+  "packageManager": "npm@9",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json}\"",
+    "typecheck": "tsc -b"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.0"
+  }
+}

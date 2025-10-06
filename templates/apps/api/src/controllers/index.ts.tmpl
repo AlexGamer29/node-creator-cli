@@ -1,0 +1,13 @@
+import { Request, Response } from 'express';
+{{- if .HasServices }}
+import { exampleService } from '../services';
+{{- end }}
+
+export async function exampleController(_req: Request, res: Response) {
+{{- if .HasServices }}
+  const payload = await exampleService();
+  res.json(payload);
+{{- else }}
+  res.json({ message: 'Example controller' });
+{{- end }}
+}
