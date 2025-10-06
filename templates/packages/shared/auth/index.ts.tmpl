@@ -1,0 +1,5 @@
+{{- if eq .Auth "jwt" }}
+export { signJwt as signToken, verifyJwt as verifyToken } from './jwt';
+{{- else }}
+export { signPaseto as signToken, verifyPaseto as verifyToken } from './paseto';
+{{- end }}

@@ -1,0 +1,54 @@
+import dotenv from 'dotenv';
+{{- if ne .Database "mongodb" }}
+import 'reflect-metadata';
+import { DataSource } from 'typeorm';
+{{- else }}
+import { MongoClient } from 'mongodb';
+{{- end }}
+
+dotenv.config({ path: process.env.ENV_FILE ?? 'config/env/.env.local' });
+
+const databaseUrl = process.env.DATABASE_URL ?? '';
+
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL is required to initialize the database client');
+}
+
+{{- if eq .Database "mongodb" }}
+let mongoClient: MongoClient | null = null;
+
+export async function getDatabase() {
+  if (!mongoClient) {
+    mongoClient = new MongoClient(databaseUrl);
+    await mongoClient.connect();
+  }
+  return mongoClient;
+}
+
+export async function healthCheck() {
+  const client = await getDatabase();
+  await client.db().command({ ping: 1 });
+  return { status: 'ok', driver: 'mongodb' };
+}
+{{- else }}
+let dataSource: DataSource | null = null;
+
+export async function getDatabase() {
+  if (!dataSource) {
+    dataSource = new DataSource({
+      type: '{{ .Database }}' as const,
+      url: databaseUrl,
+      synchronize: false,
+      entities: [],
+      migrations: []
+    });
+    await dataSource.initialize();
+  }
+  return dataSource;
+}
+
+export async function healthCheck() {
+  const ds = await getDatabase();
+  return { status: ds.isInitialized ? 'ok' : 'error', driver: '{{ .Database }}' };
+}
+{{- end }}

@@ -1,0 +1,11 @@
+import { V4 } from '@panva/paseto';
+
+const secret = (process.env.PASETO_SECRET ?? 'change-me').slice(0, 32).padEnd(32, '0');
+
+export async function signPaseto<T extends object>(payload: T, expiresIn = '1h') {
+  return await new V4().sign(payload, secret, { expiresIn });
+}
+
+export async function verifyPaseto<T>(token: string) {
+  return (await new V4().verify(token, secret)) as T;
+}

@@ -1,0 +1,11 @@
+import jwt from 'jsonwebtoken';
+
+const secret = process.env.JWT_SECRET ?? 'change-me';
+
+export function signJwt<T extends object>(payload: T, expiresIn = '1h') {
+  return jwt.sign(payload, secret, { expiresIn });
+}
+
+export function verifyJwt<T>(token: string) {
+  return jwt.verify(token, secret) as T;
+}
